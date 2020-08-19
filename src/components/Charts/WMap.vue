@@ -33,6 +33,10 @@ export default {
     return {
       chart: null,
       mapName: "",
+      geoCoordMap: {
+        监狱1: [120.171465, 30.250236],
+        监狱2: [119.878199, 30.70695]
+      },
       level: 1 // 地图层级, 1显示省级地图 2 显示市级地图
     };
   },
@@ -64,13 +68,26 @@ export default {
           trigger: "item",
           show: true,
           formatter: function(params) {
-            let res = `<div><p style="text-align: left;"> ${params.name}</p></div>`;
+            console.log(params);
+            let val = "";
+            if (params.value && Array.isArray(params.value)) {
+              if (params.value.length === 3) {
+                val = params.value[2];
+              }
+            }
+            let res = `<div><p style="text-align: left;"> ${params.name}:${val}</p></div>`;
             return res;
           }
         },
+        // visualMap: {
+        //   type: "piecewise",
+        //   textStyle: {
+        //     color: "#fff"
+        //   }
+        // },
         geo: {
           // 设置地图的显示信息
-          map: "", // 注意  哪个区域的就显示哪个区域的名称
+          map: "zhejiang", // 注意  哪个区域的就显示哪个区域的名称
           label: {
             normal: {
               // 设置字体相关信息
@@ -87,7 +104,7 @@ export default {
           itemStyle: {
             // 设置地图块的相关显示信息
             normal: {
-              areaColor: "#0AFFFC",
+              areaColor: "#004259",
               borderColor: "#6367ad",
               borderWidth: 1
             },
@@ -101,23 +118,48 @@ export default {
           bottom: "0"
         },
         series: [
+          // {
+          //   type: "map",
+          //   map: "zhejiang",
+          //   zoom: 1.2,
+          //   selectedMode: "single",
+          //   label: {
+          //     normal: {
+          //       show: true,
+          //       formatter: function(params) {
+          //         const str = params.name;
+          //         return str; //地图上展示文字
+          //       }
+          //     }
+          //   },
+          //   // data: [],
+          //   itemStyle: {
+          //     areaColor: "#0AFFFC"
+          //   }
+          // },
           {
-            type: "map",
-            map: "zhejiang",
-            zoom: 1.2,
-            selectedMode: "single",
+            type: "scatter",
+            coordinateSystem: "geo",
+            data: this.convertData([
+              { name: "监狱1", value: 110 },
+              { name: "监狱2", value: 110 }
+            ]),
+            symbol:
+              "image://data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAPCAYAAADQ4S5JAAAABHNCSVQICAgIfAhkiAAAAblJREFUKFOVkcFLG0EYxd/nBqMx6RpkiSVSlaIVPOgWsvVScq6X0kvxqIeeq0h7Vf8Dhd4UjCcPHhSRnoN4aBLI9NBTKEgPYiQxuO5Gm3V3R2ZcJVER/A47szPv982beYSgxhnrbofzFeDTAA0EyzsANvL6OzHKIvFJsfw4wd9uEt7uy5GDZwr6xIwEbjo3mBAroIvJnp76h7im2Z6LreqJWbDO1QBaKegTs2Sw3CKABSHOvBmNDHdG8O2whC+9fRDz1fIR1spH8iQH/iAZxdxvEMY+a4l/88n+frGxWSmj7nkY6owgrcYx+Yc1Tt2rsA8+J07gQvTj9UhdDYW6vh+WcOw40KMxxBQFU9pL7NUq+FmrCtlSC/D3/0UXsy0pPnYaKFoW0t1xlC7r2DfPboAUy2UJSL9X4ye25yZeKCFEFUX636tV8TYaw+5pxb30/RAHzVCK5acJfF3gc8lXmNJ6757U8jwIi0XbAucwr6h9QOZgsF87AH0U82Q4bBpRlWzfbTswzzpE56DDJxGgBGQW3MmK12pJLPgRVgq6kblL+imoWdwCPAbdFz8AmiFOtHxro9mmvMNz6hrMcb7ZbtYwtAAAAABJRU5ErkJggg==",
+            symbolSize: 12,
             label: {
               normal: {
-                show: true,
-                formatter: function(params) {
-                  const str = params.name;
-                  return str; //地图上展示文字
-                }
+                show: false
+              },
+              emphasis: {
+                show: false
               }
             },
-            // data: [],
             itemStyle: {
-              areaColor: "#0AFFFC"
+              emphasis: {
+                borderColor: "#fff",
+                borderWidth: 1
+              }
             }
           }
         ]
@@ -164,6 +206,19 @@ export default {
             });
         });
       }
+    },
+    convertData(data) {
+      const res = [];
+      for (let i = 0; i < data.length; i++) {
+        const geoCoord = this.geoCoordMap[data[i].name];
+        if (geoCoord) {
+          res.push({
+            name: data[i].name,
+            value: geoCoord.concat(data[i].value)
+          });
+        }
+      }
+      return res;
     }
   },
   beforeDestroy() {

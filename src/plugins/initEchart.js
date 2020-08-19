@@ -9,6 +9,8 @@ const echarts = equire([
   "title",
   "dataZoom",
   "geo",
-  "visualMap"
+  "visualMap",
+  "effectScatter",
+  "scatter"
 ]);
 export default echarts;
